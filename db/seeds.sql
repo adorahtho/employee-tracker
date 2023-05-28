@@ -23,3 +23,5 @@ VALUES ("John", "Doe", 1),
 ("Malia", "Brown", 6),
 ("Sarah", "Lourd", 7),
 ("Tom", "Allen", 8);
+
+-- missing manager_id on employee table
