@@ -6,6 +6,12 @@ const options = [
     type: 'list',
     message: 'What would you like to do?',
     name: 'options',
-    choices: ['View All Employees', 'Add Employee', 'Update Employee Role', 'View All Roles', 'Add Role', 'View All Departments', 'Add Department']
+    choices: ['View All Departments', 'View All Roles', 'View All Dmployees', 'Add A Department', 'Add A Role', 'Add An Employee', 'Update An Employee Role']
   },
 ]
+
+function init() {
+  inquirer.prompt(options)
+}
+
+init()
