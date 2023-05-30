@@ -1,13 +1,6 @@
-const express = require('express');
 // Import and require mysql2
 const mysql = require('mysql2');
-
-const PORT = process.env.PORT || 3001;
-const app = express();
-
-// Express middleware
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
+const inquirer = require('inquirer')
 
 // Connect to database
 const db = mysql.createConnection(
@@ -19,3 +12,18 @@ const db = mysql.createConnection(
   },
   console.log(`Connected to the employee_db database.`)
 );
+
+const options = [
+  {
+    type: 'list',
+    message: 'What would you like to do?',
+    name: 'options',
+    choices: ['View All Departments', 'View All Roles', 'View All Dmployees', 'Add A Department', 'Add A Role', 'Add An Employee', 'Update An Employee Role']
+  },
+]
+
+function init() {
+  inquirer.prompt(options)
+}
+
+init()
