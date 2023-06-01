@@ -54,8 +54,8 @@ function init() {
   ])
   .then((choice) => {
     switch (choice) {
-      case 'VIEW_DEPARTMENTS':
-        viewDepartments();
+      case 'VIEW_ALL_DEPARTMENTS':
+        viewAllDepartments();
         break;
       case 'VIEW_ALL_ROLES':
         viewAllRoles();
@@ -79,8 +79,13 @@ function init() {
   })
 }
 
-function viewDepartments() {
-  cTable(department)
+function viewAllDepartments() {
+  db.query('SELECT * FROM department', function (err, results) {
+    if (err) {
+      console.log(err);
+    }
+    console.log(results);
+  })
 }
 
 init()
