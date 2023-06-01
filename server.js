@@ -23,7 +23,7 @@ function init() {
       choices: [
         {
           name: 'View All Departments',
-          value: 'VIEW_DEPARTMENTS'
+          value: 'VIEW_ALL_DEPARTMENTS'
         },
         {
           name: 'View All Roles',
@@ -53,7 +53,8 @@ function init() {
     }
   ])
   .then((choice) => {
-    switch (choice) {
+    console.log(choice)
+    switch (choice.options) {
       case 'VIEW_ALL_DEPARTMENTS':
         viewAllDepartments();
         break;
@@ -80,12 +81,24 @@ function init() {
 }
 
 function viewAllDepartments() {
-  db.query('SELECT * FROM department', function (err, results) {
+  db.query('SELECT * FROM departments', function (err, results) {
     if (err) {
       console.log(err);
     }
-    console.log(results);
+    console.table(results);
   })
+  init()
 }
+
+function viewAllRoles() {
+  db.query('SELECT * FROM role', function (err, results) {
+    if (err) {
+      console.log(err);
+    }
+    console.table(results);
+  })
+  init()
+}
+// need to correct spacing in terminal as prompts appear on top instead of on bottom and pushes the titles of the columns to the right when viewing all roles
 
 init()
