@@ -99,6 +99,20 @@ function viewAllRoles() {
   })
   init()
 }
+
+function viewAllEmployees() {
+  db.query('SELECT * FROM employee', function (err, results) {
+    if (err) {
+      console.log(err);
+    }
+    console.table(results);
+  })
+  init()
+}
+
+function addADepartmet() {
+  
+}
 // need to correct spacing in terminal as prompts appear on top instead of on bottom and pushes the titles of the columns to the right when viewing all roles
 
 init()
