@@ -81,38 +81,42 @@ function init() {
 }
 
 function viewAllDepartments() {
-  db.query('SELECT * FROM departments', function (err, results) {
+  const sql = `SELECT * FROM departments`;
+  db.query(sql, (err, res) => {
     if (err) {
       console.log(err);
     }
-    console.table(results);
+    console.table(res);
+    init()
   })
-  init()
 }
 
 function viewAllRoles() {
-  db.query('SELECT * FROM role', function (err, results) {
+  const sql = `SELECT role.title, role.id, departments.name, role.salary FROM role JOIN departments ON role.departments = departments.id`;
+  db.query(sql, (err, res) => {
     if (err) {
       console.log(err);
     }
-    console.table(results);
+    console.table(res);
+    init()
   })
-  init()
 }
+//unable to get this table to display in terminal
 
 function viewAllEmployees() {
-  db.query('SELECT * FROM employee', function (err, results) {
+  const sql = `SELECT * FROM employee`;
+  db.query(sql, (err, res) => {
     if (err) {
       console.log(err);
     }
-    console.table(results);
+    console.table(res);
+    init()
   })
-  init()
 }
 
-function addADepartmet() {
-  
-}
+// function addADepartmet() {
+
+// }
 // need to correct spacing in terminal as prompts appear on top instead of on bottom and pushes the titles of the columns to the right when viewing all roles
 
 init()
