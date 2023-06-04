@@ -181,43 +181,72 @@ async function addARole() {
   })
 }
 
-// async function addAnEmployee() {
-//   const [employee] = await db.promise().query('SELECT * FROM employee')
-//   const employeeArray = employee.map(employee => (
-//     {
-//       name: employee.name, 
-//       value: employee.id
-//     }
-//   ))
-//   inquirer.prompt([
-//     {
-//       type: 'input', 
-//       name: 'first_name', 
-//       message: 'Enter the employee first name.'
-//     },  
-//     {
-//       type: 'input', 
-//       name: 'last_name', 
-//       message: 'Enter the employee last name.'
-//     }, 
-//     {
-//       type: 'input', 
-//       name: 'role', 
-//       message: 'Select employee role.', 
-//       choices: employeeArray
-//     }
-//   ]).then(({title, salary, department_id}) => {
-//     const roleObject = {title, salary, department_id}
-//     db.promise().query('INSERT INTO role SET ?', roleObject)
-//     .then(([rows]) => {
-//       if(rows.affectedRows > 0) {
-//         viewAllDepartments()
-//       }else {
-//         console.error({message: 'Failed to add to Database.'})
-//       }
-//     })
-//   })
-// }
-// }
+async function addAnEmployee() {
+  const [role] = await db.promise().query('SELECT * FROM role')
+  const roleArray = role.map(role => (
+    {
+      name: role.title, 
+      value: role.id
+    }
+  ))
+  const [employee] = await db.promise().query('SELECT * FROM employee')
+  const managerArray = employee.map(employee => (
+    {
+      name: employee.id, 
+      value: employee.role_id
+    },
+    {
+      name: employee.first_name, 
+      value: employee.role_id
+    },
+    {
+      name: employee.last_name,
+      value: employee.role_id
+    }
+  ))
+  inquirer.prompt([
+    {
+      type: 'input', 
+      name: 'first_name', 
+      message: 'Enter the employee first name.'
+    },  
+    {
+      type: 'input', 
+      name: 'last_name', 
+      message: 'Enter the employee last name.'
+    }, 
+    {
+      type: 'list', 
+      name: 'role_id', 
+      message: 'Select employee role.', 
+      choices: roleArray
+    },
+    {
+      type: 'list',
+      name: 'manager_id',
+      message: 'Select manager for employee.',
+      choices: managerArray
+    }
+  ])
+  .then(({first_name, last_name, role_id, manager_id}) => {
+    const employeeObject = {first_name, last_name, role_id, manager_id}
+    db.promise().query('INSERT INTO employee SET ?', employeeObject)
+    .then(([rows]) => {
+      if(rows.affectedRows > 0) {
+        const sql = `SELECT * FROM employee`
+        db.query(sql, (err, res) => {
+          if (err) {
+            console.log(err);
+          }
+          printTable(res);
+          init()
+        })
+      }else {
+        console.error({message: 'Failed to add to Database.'})
+      }
+    })
+  })
+}
+//wrong role is being assigned to new employee entry. all last names of employees showing for managers in list of choices. 
 
 init()
