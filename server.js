@@ -81,7 +81,7 @@ function init() {
 }
 
 function viewAllDepartments() {
-  const sql = `SELECT * FROM department`;
+  const sql = `SELECT * FROM departments`;
   db.query(sql, (err, res) => {
     if (err) {
       console.log(err);
@@ -92,11 +92,11 @@ function viewAllDepartments() {
 }
 
 function viewAllRoles() {
-  const sql = `SELECT role.title AS job_title, 
+  const sql = `SELECT role.title AS Job_Title, 
   role.id AS Role_Id, 
-  department.name AS Department, 
-  role.salary 
-  FROM role JOIN department ON role.department_id = department.id`;
+  departments.name AS Department, 
+  role.salary AS Salary
+  FROM role JOIN departments ON role.department_id = departments.id`;
   db.query(sql, (err, res) => {
     if (err) {
       console.log(err);
@@ -111,10 +111,10 @@ function viewAllEmployees() {
   CONCAT(employee.first_name, " ", employee.last_name) AS Name, 
   role.title AS Title, 
   role.salary AS Salary, 
-  department.name AS Department, 
+  departments.name AS Department, 
   CONCAT(manager.first_name, ' ', manager.last_name) AS Manager 
   FROM employee LEFT JOIN role ON employee.id = role.id 
-  LEFT JOIN department ON role.department_id = department.id 
+  LEFT JOIN departments ON role.department_id = departments.id 
   LEFT JOIN employee manager on manager.id = employee.manager_id;`;
   db.query(sql, (err, res) => {
     if (err) {
@@ -132,7 +132,7 @@ async function addADepartment() {
       name: 'name', 
       message: 'Enter new department name.'
     })
-    const [rows] = await db.promise().query(`INSERT INTO department SET ?`, {name})
+    const [rows] = await db.promise().query(`INSERT INTO departments SET ?`, {name})
     if(rows.affectedRows > 0) {
       viewAllDepartments()
     }else {
@@ -144,8 +144,8 @@ async function addADepartment() {
 }
 
 async function addARole() {
-  const [department] = await db.promise().query('SELECT * FROM department')
-  const departmentArray = department.map(department => (
+  const [departments] = await db.promise().query('SELECT * FROM departments')
+  const departmentArray = departments.map(department => (
     {
       name: department.name, 
       value: department.id
@@ -168,13 +168,12 @@ async function addARole() {
       message: 'Select department from list.', 
       choices: departmentArray
     }
-  ])
-  .then(({title, salary, department_id}) => {
+  ]).then(({title, salary, department_id}) => {
     const roleObject = {title, salary, department_id}
     db.promise().query('INSERT INTO role SET ?', roleObject)
     .then(([rows]) => {
       if(rows.affectedRows > 0) {
-        viewAllDepartments()
+        viewAllRoles()
       }else {
         console.error({message: 'Failed to add to Database.'})
       }
@@ -182,36 +181,43 @@ async function addARole() {
   })
 }
 
-async function addAnEmployee() {
-  const [role] = await db.promise().query('SELECT * FROM role')
-  const roleArray = role.map(role => (
-    {
-      name: role.title, 
-      value: role.id
-    }
-  ))
-  inquirer.prompt([
-    {
-      type: 'input', 
-      name: 'first_name', 
-      message: 'Enter the employee first name.'
-    },  
-    {
-      type: 'input', 
-      name: 'last_name', 
-      message: 'Enter the employee last name.'
-    }, 
-    {
-      type: 'list', 
-      name: 'role_id', 
-      message: 'Select employee role.', 
-      choices: roleArray
-    },
-  ])
-  
-//need to add prompt for manager w/ choices then insert new employee data into database
-
-}
-
+// async function addAnEmployee() {
+//   const [employee] = await db.promise().query('SELECT * FROM employee')
+//   const employeeArray = employee.map(employee => (
+//     {
+//       name: employee.name, 
+//       value: employee.id
+//     }
+//   ))
+//   inquirer.prompt([
+//     {
+//       type: 'input', 
+//       name: 'first_name', 
+//       message: 'Enter the employee first name.'
+//     },  
+//     {
+//       type: 'input', 
+//       name: 'last_name', 
+//       message: 'Enter the employee last name.'
+//     }, 
+//     {
+//       type: 'input', 
+//       name: 'role', 
+//       message: 'Select employee role.', 
+//       choices: employeeArray
+//     }
+//   ]).then(({title, salary, department_id}) => {
+//     const roleObject = {title, salary, department_id}
+//     db.promise().query('INSERT INTO role SET ?', roleObject)
+//     .then(([rows]) => {
+//       if(rows.affectedRows > 0) {
+//         viewAllDepartments()
+//       }else {
+//         console.error({message: 'Failed to add to Database.'})
+//       }
+//     })
+//   })
+// }
+// }
 
 init()
