@@ -1,4 +1,4 @@
-// Import and require mysql2
+// Import dependencies
 const mysql = require('mysql2');
 const inquirer = require('inquirer')
 const {printTable} = require('console-table-printer')
@@ -14,6 +14,7 @@ const db = mysql.createConnection(
   console.log(`Connected to the employee_db database.`)
 );
 
+//prompts displaying options for user
 function init() {
   inquirer.prompt([
     {
@@ -52,6 +53,7 @@ function init() {
       ]
     }
   ])
+  //user's choice will run the following function then break
   .then((choice) => {
     console.log(choice)
     switch (choice.options) {
@@ -80,6 +82,7 @@ function init() {
   })
 }
 
+//display department table
 function viewAllDepartments() {
   const sql = `SELECT * FROM department`;
   db.query(sql, (err, res) => {
@@ -91,6 +94,7 @@ function viewAllDepartments() {
   })
 }
 
+//display role table
 function viewAllRoles() {
   const sql = `SELECT role.title AS Job_Title, 
   role.id AS Role_Id, 
@@ -106,6 +110,7 @@ function viewAllRoles() {
   })
 }
 
+//display employee table
 function viewAllEmployees() {
   const sql = `SELECT employee.id AS Id, 
   CONCAT(employee.first_name, " ", employee.last_name) AS Name, 
@@ -125,6 +130,7 @@ function viewAllEmployees() {
   })
 }
 
+//add new department name and then department table displays showing update
 async function addADepartment() {
   try {
     const {name} = await inquirer.prompt({
@@ -143,6 +149,7 @@ async function addADepartment() {
   }
 }
 
+//add new role, salary, and department. display role table to show updates.
 async function addARole() {
   const [department] = await db.promise().query('SELECT name, id FROM department')
   const departmentArray = department.map(department => ({
@@ -179,6 +186,7 @@ async function addARole() {
   })
 }
 
+//add new employee first and last name, role, and manager. display employee table to show update.
 async function addAnEmployee() {
   const [roles] = await db.promise().query('SELECT id, title FROM role')
   const roleArray = roles.map(role => ({
@@ -243,6 +251,7 @@ async function addAnEmployee() {
   })
 }
 
+//update an employee's role and show updates on table
 async function updateAnEmployeeRole() {
   const [employees] = await db.promise().query('SELECT id, first_name, last_name FROM employee')
   const employeeArray = employees.map(employee => ({

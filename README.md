@@ -27,6 +27,9 @@ This application is licensed by MIT.
 License URL: https://opensource.org/licenses/MIT
 
 ## GitHub Repository
+https://github.com/thoak90codes/employee-tracker.git 
+
+## Walkthrough Video Link
 
 ## Author & Contributors
 * https://github.com/thoak90codes
