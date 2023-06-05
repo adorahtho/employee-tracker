@@ -81,7 +81,7 @@ function init() {
 }
 
 function viewAllDepartments() {
-  const sql = `SELECT * FROM departments`;
+  const sql = `SELECT * FROM department`;
   db.query(sql, (err, res) => {
     if (err) {
       console.log(err);
@@ -94,9 +94,9 @@ function viewAllDepartments() {
 function viewAllRoles() {
   const sql = `SELECT role.title AS Job_Title, 
   role.id AS Role_Id, 
-  departments.name AS Department, 
+  department.name AS Department, 
   role.salary AS Salary
-  FROM role JOIN departments ON role.department_id = departments.id`;
+  FROM role JOIN department ON role.department_id = department.id`;
   db.query(sql, (err, res) => {
     if (err) {
       console.log(err);
@@ -111,10 +111,10 @@ function viewAllEmployees() {
   CONCAT(employee.first_name, " ", employee.last_name) AS Name, 
   role.title AS Title, 
   role.salary AS Salary, 
-  departments.name AS Department, 
+  department.name AS Department, 
   CONCAT(manager.first_name, ' ', manager.last_name) AS Manager 
   FROM employee LEFT JOIN role ON employee.id = role.id 
-  LEFT JOIN departments ON role.department_id = departments.id 
+  LEFT JOIN department ON role.department_id = department.id 
   LEFT JOIN employee manager on manager.id = employee.manager_id;`;
   db.query(sql, (err, res) => {
     if (err) {
@@ -132,7 +132,7 @@ async function addADepartment() {
       name: 'name', 
       message: 'Enter new department name.'
     })
-    const [rows] = await db.promise().query(`INSERT INTO departments SET ?`, {name})
+    const [rows] = await db.promise().query(`INSERT INTO department SET ?`, {name})
     if(rows.affectedRows > 0) {
       viewAllDepartments()
     }else {
@@ -144,13 +144,11 @@ async function addADepartment() {
 }
 
 async function addARole() {
-  const [departments] = await db.promise().query('SELECT * FROM departments')
-  const departmentArray = departments.map(department => (
-    {
-      name: department.name, 
-      value: department.id
-    }
-  ))
+  const [department] = await db.promise().query('SELECT name, id FROM department')
+  const departmentArray = department.map(department => ({
+    name: department.name, 
+    value: department.id
+  }))
   inquirer.prompt([
     {
       type: 'input', 
@@ -175,35 +173,23 @@ async function addARole() {
       if(rows.affectedRows > 0) {
         viewAllRoles()
       }else {
-        console.error({message: 'Failed to add to Database.'})
+        console.error({message: 'Failed to add role to Database.'})
       }
     })
   })
 }
 
 async function addAnEmployee() {
-  const [role] = await db.promise().query('SELECT * FROM role')
-  const roleArray = role.map(role => (
-    {
-      name: role.title, 
-      value: role.id
-    }
-  ))
-  const [employee] = await db.promise().query('SELECT * FROM employee')
-  const managerArray = employee.map(employee => (
-    {
-      name: employee.id, 
-      value: employee.role_id
-    },
-    {
-      name: employee.first_name, 
-      value: employee.role_id
-    },
-    {
-      name: employee.last_name,
-      value: employee.role_id
-    }
-  ))
+  const [roles] = await db.promise().query('SELECT id, title FROM role')
+  const roleArray = roles.map(role => ({
+    name: role.title, 
+    value: role.id
+  }))
+  const [employees] = await db.promise().query('SELECT id, first_name, last_name FROM employee')
+  const managerArray = employees.map(employee => ({
+    name: `${employee.first_name} ${employee.last_name}`, 
+    value: employee.id
+  }))
   inquirer.prompt([
     {
       type: 'input', 
@@ -233,7 +219,16 @@ async function addAnEmployee() {
     db.promise().query('INSERT INTO employee SET ?', employeeObject)
     .then(([rows]) => {
       if(rows.affectedRows > 0) {
-        const sql = `SELECT * FROM employee`
+        const sql = `SELECT employee.id AS Id, 
+        CONCAT(employee.first_name, ' ', employee.last_name) AS Name, 
+        role.title AS Title, 
+        role.salary AS Salary, 
+        department.name AS Department, 
+        CONCAT(manager.first_name, ' ', manager.last_name) AS Manager 
+        FROM employee 
+        LEFT JOIN role ON employee.role_id = role.id 
+        LEFT JOIN department ON role.department_id = department.id 
+        LEFT JOIN employee AS manager ON employee.manager_id = manager.id`
         db.query(sql, (err, res) => {
           if (err) {
             console.log(err);
@@ -242,11 +237,62 @@ async function addAnEmployee() {
           init()
         })
       }else {
-        console.error({message: 'Failed to add to Database.'})
+        console.error({message: 'Failed to add employee to Database.'})
       }
     })
   })
 }
-//wrong role is being assigned to new employee entry. all last names of employees showing for managers in list of choices. 
+
+async function updateAnEmployeeRole() {
+  const [employees] = await db.promise().query('SELECT id, first_name, last_name FROM employee')
+  const employeeArray = employees.map(employee => ({
+    name: `${employee.first_name} ${employee.last_name}`, 
+    value: employee.id
+  }))
+  const [roles] = await db.promise().query('SELECT id, title FROM role')
+  const roleArray = roles.map(role => ({
+    name: role.title, 
+    value: role.id
+  }))
+  inquirer.prompt([
+    {
+      type: 'list', 
+      name: 'employee', 
+      message: 'Select employee to update.',
+      choices: employeeArray
+    },
+    {
+      type: 'list',
+      name: 'role',
+      message: 'Select new role for employee.',
+      choices: roleArray
+    }
+  ])
+  .then(({employee, role}) => {
+    const employeeRoleObject = {role_id: role}
+    const employeeUpdateSql = `UPDATE employee SET ? WHERE id = ${employee}`
+    db.promise().query(employeeUpdateSql, employeeRoleObject)
+    .then(([rows]) => {
+      if(rows.affectedRows > 0) {
+        const sql = `SELECT employee.id AS Id, 
+        CONCAT(employee.first_name, ' ', employee.last_name) AS Name, 
+        role.title AS Title, 
+        department.name AS Department
+        FROM employee 
+        LEFT JOIN role ON employee.role_id = role.id 
+        LEFT JOIN department ON role.department_id = department.id`
+        db.query(sql, (err, res) => {
+          if (err) {
+            console.log(err);
+          }
+          printTable(res);
+          init()
+        })
+      }else {
+        console.error({message: 'Failed to update Database.'})
+      }
+    })
+  })  
+}
 
 init()
