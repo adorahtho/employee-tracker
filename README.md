@@ -30,7 +30,7 @@ License URL: https://opensource.org/licenses/MIT
 https://github.com/thoak90codes/employee-tracker.git 
 
 ## Walkthrough Video Link
-
+https://drive.google.com/file/d/1EFAwK_uR-cbF-VzRSxgAPudm4i2cCKnd/view 
 ## Author & Contributors
 * https://github.com/thoak90codes
 * UW Coding Bootcamp
